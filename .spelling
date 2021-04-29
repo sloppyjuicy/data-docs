@@ -306,6 +306,7 @@ SSL
 SSO
 Stackdriver
 STMO
+STMO#
 struct
 structs
 sql.telemetry.mozilla.org
