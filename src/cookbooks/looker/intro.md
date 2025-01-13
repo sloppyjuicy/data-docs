@@ -19,7 +19,7 @@ You can access Mozilla's instance of Looker at [`mozilla.cloud.looker.com`](http
 
 By default, on the front page you will see a list of default folders, which contain links to dashboards.
 These are organized by project.
-Of particular note is the [Mozilla Metrics folder] inside the [KPI Metrics Folder](https://mozilla.cloud.looker.com/folders/706), which includes several Data-produced and vetted dashboards like the Firefox Corporate KPI Dashboard.
+Of particular note is the [KPI Metrics Folder](https://mozilla.cloud.looker.com/folders/706), which includes several Data-produced and vetted dashboards like the Firefox Corporate KPI Dashboard.
 
 ![](../../assets/Looker_screenshots/front-page.png)
 
@@ -60,7 +60,7 @@ The following video demonstrates this workflow in detail:
 
 If you want to explore Looker more deeply, you can check out:
 
-- ["Looker Connect" training hub](https://connect.looker.com/library): A collection of self-paced video training courses for new users. Full courses are free, but require registration, but course descriptions contain preview videos that are useful on their own.
+- ["BI and Analytics with Looker" training hub](https://www.cloudskillsboost.google/journeys/28): A collection of self-paced video training courses for new users. Full courses are free, but require registration, but course descriptions contain material that is useful on its own.
 - [Looker Documentation](https://docs.looker.com/): Extensive text and video documentation, a “textbook” reference on how the product works.
 - [Looker Help Center](https://help.looker.com/): Contains articles on common problems, specific use cases, error messages, and best practices.
 - [Looker Community](https://community.looker.com/) has customer-written material, broadcasts from Looker employees (primarily release notes), and topics written by Looker employees that are not officially supported by Looker.
