@@ -27,7 +27,7 @@ Always use uppercase for reserved keywords like `SELECT`, `WHERE`, or `AS`.
 
 1. Use consistent and descriptive identifiers and names.
 1. Use lower case names with underscores, such as `first_name`.
-   Do not use CamelCase.
+   Do not use camelCase.
 1. Functions, such as `cardinality`, `approx_distinct`, or `substr`,
    [are identifiers](https://www.postgresql.org/docs/10/static/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS)
    and should be treated like variable names.
@@ -256,6 +256,44 @@ FROM main_summary
 WHERE submission_date > '20180101'
   AND sample_id = '42'
 LIMIT 10
+```
+
+## Join Conditions
+
+The `ON` and `USING` keywords should start on a new line indented one level more than the join keyword
+and be followed by the join conditions starting on the same line. For example:
+
+**Good**:
+
+```sql
+...
+FROM
+  telemetry_stable.main_v4
+LEFT JOIN
+  static.normalized_os_name
+  ON main_v4.environment.system.os.name = normalized_os_name.os_name
+```
+
+**Bad**:
+
+```sql
+...
+FROM
+  telemetry_stable.main_v4
+LEFT JOIN
+  static.normalized_os_name ON main_v4.environment.system.os.name = normalized_os_name.os_name
+```
+
+**Bad**:
+
+```sql
+...
+FROM
+  telemetry_stable.main_v4
+LEFT JOIN
+  static.normalized_os_name
+ON
+  main_v4.environment.system.os.name = normalized_os_name.os_name
 ```
 
 ## Parentheses

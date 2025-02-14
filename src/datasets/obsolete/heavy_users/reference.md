@@ -6,8 +6,7 @@
 
 # Replacement
 
-We've moved to assigning user's an active tag based on `total_uri_count`, see
-the [Active DAU definition](../../../cookbooks/active_dau.md).
+We've moved to assigning user's an active tag based on `total_uri_count`.
 
 The activity of a user based on `active_ticks` is available in `clients_daily`
 in the `active_hours_sum` field, which has the `sum(active_ticks / 720)`.
@@ -34,8 +33,8 @@ FROM
 
 Example queries:
 
-- [Join `heavy_users` with `main_summary` to get distribution of `max_concurrent_tab_count` for heavy vs. non-heavy users](https://sql.telemetry.mozilla.org/queries/47041/source#127382)
-- [Join `heavy_users` with `longitudinal` to get crash rates for heavy vs. non-heavy users](https://sql.telemetry.mozilla.org/queries/47044/source#127385)
+- [Join `heavy_users` with `main_summary` to get distribution of `max_concurrent_tab_count` for heavy vs. non-heavy users (`STMO#47041`)](https://sql.telemetry.mozilla.org/queries/47041/source#127382)
+- [Join `heavy_users` with `longitudinal` to get crash rates for heavy vs. non-heavy users (`STMO#47044`)](https://sql.telemetry.mozilla.org/queries/47044/source#127385)
 
 ## Schema
 
