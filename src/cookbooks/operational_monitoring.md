@@ -9,21 +9,23 @@ A couple of specific use cases are supported:
 1. Monitoring build over build. This is typically used for Nightly where one build may contain changes that a previous build doesn't and we want to see if those changes affected certain metrics.
 2. Monitoring by submission date over time. This is helpful for a rollout in Release for example, where we want to make sure there are no performance or stability regressions over time as a new build rolls out.
 
-The monitoring dashboards produced for these use cases are available in [Looker](https://mozilla.cloud.looker.com/folders/494).
+The monitoring dashboards produced for these use cases are available in [Looker](https://mozilla.cloud.looker.com/folders/lookml).
 OpMon does not emit real-time results. Dashboards and related datasets get updated on a daily basis.
 
 Access to the Looker Operational Monitoring dashboards is currently limited to Mozilla employees and designated contributors. For more information, see [gaining access](../concepts/gaining_access.md).
 
 ## Configuring a Operational Monitoring project
 
-To add or update a project configuration, open a pull request against [opmon-config](https://github.com/mozilla/opmon-config).
-CI checks will validate the columns, data sources, and SQL syntax. Once CI completes, the pull request can be merged and results for the new project will be available within the next 24 hours.
+To add or update a project configuration, open a pull request against the `opmon/` directory in [metric-hub](https://github.com/mozilla/metric-hub/tree/main/opmon).
+Consider using and adding metric definitions to the [metric-hub](https://github.com/mozilla/metric-hub) that should be available for use across other tools, such as [Jetstream](https://experimenter.info/deep-dives/jetstream/overview), as well.
+
+CI checks will validate the columns, data sources, and SQL syntax. Once CI completes, the pull request gets automatically approved and can be merged. Results for the new project will be available within the next 24 hours.
 
 Project configurations files are written in [TOML](https://toml.io/en/). To reuse configurations across multiple projects, project configurations can reference configurations from definition files.
-These definitions files are platform-specific and located in the [`definitions/` directory of opmon-config](https://github.com/mozilla/opmon-config/tree/main/definitions). Platform-specific configuration files follow the same format and structure as project configuration files.
+These definitions files are platform-specific and located in the [`opmon/definitions/` directory in metric-hub](https://github.com/mozilla/metric-hub/tree/main/opmon/definitions) or in the [metric-hub](https://github.com/mozilla/metric-hub) repository. Platform-specific configuration files follow the same format and structure as project configuration files.
 
 If the project is used to monitor a rollout or experiment, then the configuration files should have the same name as the slug that has been assigned in [Experimenter](https://experimenter.services.mozilla.com/).
-Generally, configuration files have four main sections: `[project]`, `[data_sources]`, `[probes]`, and `[dimensions]`. All of these sections are optional.
+Generally, configuration files have four main sections: `[project]`, `[data_sources]`, `[metrics]`, and `[dimensions]`. All of these sections are optional.
 
 Examples of every value you can specify in each section are given below. **You do not need to, and should not, specify everything!**
 OpMon will take values from Experimenter (for rollouts and experiments) and combine them with a reasonable set of defaults.
@@ -34,7 +36,7 @@ Lines starting with a `#` are comments and have no effect.
 
 This part of the configuration file is optional and allows to:
 
-- specify the probes that should be analyzed
+- specify the metrics that should be analyzed
 - define the clients that should be monitored
 - indicate if/how the client population should be segmented, and
 - override some values from Experimenter
@@ -59,17 +61,35 @@ xaxis = "submission_date"
 # Experimenter will be used as defaults.
 start_date = "2022-01-01"
 
-# Metrics, that are based on probes, to compute.
+# Whether to skip the analysis for this project entirely.
+# Useful for skipping rollouts for which OpMon projects are generated automatically otherwise.
+skip = false
+
+# Whether the project is related to a rollout.
+is_rollout = false
+
+# Ignore the default metrics that would be computed.
+skip_default_metrics = false
+
+# Whether to have all the results in a single tile on the Looker dashboard (compact)
+# or to have separate tiles for each metric.
+compact_visualization = false
+
+# Metrics, that are based on metrics, to compute.
 # Defined as a list of strings. These strings are the "slug" of the metric, which is the
 # name of the metric definition section in either the project configuration or the platform-specific
 # configuration file.
-# See [probes] section on how these metrics get defined.
-probes = [
+# See [metrics] section on how these metrics get defined.
+metrics = [
     'shutdown_hangs',
     'main_crashes',
     'startup_crashes',
     'memory_unique_content_startup',
     'perf_page_load_time_ms'
+]
+
+alerts = [
+    "ci_diffs"
 ]
 
 # This section specifies the clients that should be monitored.
@@ -102,7 +122,23 @@ monitor_entire_population = false
 # name of the dimension definition section in either the project configuration or the platform-specific
 # configuration file. See [dimensions] section on how these get defined.
 dimensions = ["os"]
+
+# A set of metrics that should be part of the the same visualization
+[project.metric_groups.crashes]
+friendly_name = "Crashes"
+description = "Breakdown of crashes"
+metrics = [
+    "main_crashes",
+    "startup_crashes",
+]
 ```
+
+#### Metric Groups
+
+Metrics groups allow to specify a set of existing metric definitions that should be displayed in the same visualization (like a graph, for example) as separate lines. Often these metrics are related to each other in some way and having them in a single graph simplifies visual comparison.
+
+Metric groups are different from `dimensions`. Dimensions segment the population based on a specific criteria (for example a table field). Depending on the selected segment only data for this slice of the population is shown for all specified metrics.
+Metric groups do not influence how metrics are computed, they only have an impact on how metrics are visualized.
 
 ### `[data_sources]` Section
 
@@ -135,30 +171,30 @@ from_expression = """
 submission_date_column = "DATE(submission_date)"
 ```
 
-### `[probes]` Section
+### `[metrics]` Section
 
-The probes sections allows to specify metrics based on probes that should be monitored.
+The metrics sections allows to specify metrics based on metrics that should be monitored.
 
-In most cases, it is not necessary to define project-specific probes, instead probes can be specified and referenced from the
+In most cases, it is not necessary to define project-specific metrics, instead metrics can be specified and referenced from the
 platform-specific definition configurations.
 
-A new probe can be defined by adding a new section with a name like:
+A new metric can be defined by adding a new section with a name like:
 
-`[probes.<new_probe_slug>]`
+`[metrics.<new_metric_slug>]`
 
 ```toml
-[probes]
+[metrics]
 
-[probes.memory_pressure_count]
+[metrics.memory_pressure_count]
 
 # The data source to use. Use the slug of a data source defined in a platform-specific config,
 # or else define a new data source (see above).
 data_source = "events_memory"
 
-# A clause of a SELECT expression
-select_expression = "SAFE_CAST(SPLIT(event_string_value, ',')[OFFSET(1)] AS NUMERIC)"
+# A clause of a SELECT expression with an aggregation
+select_expression = "SUM(SAFE_CAST(SPLIT(event_string_value, ',')[OFFSET(1)] AS NUMERIC))"
 
-# Type of the probe to be evaluated.
+# Type of the metric to be evaluated.
 # This is used to determine the method of aggregation to be applied.
 # Either "scalar" or "histogram".
 type = "scalar"
@@ -169,9 +205,29 @@ friendly_name = "Memory Pressure Count"
 # A description that will be displayed by dashboards.
 description = "Number of memory pressure events"
 
-# This can be any string value. It's currently not being used but in the future, this could be used to visually group different probes by category.
+# This can be any string value. It's currently not being used but in the future, this could be used to visually group different metrics by category.
 category = "performance"
 ```
+
+Statistics reduce observations of many clients to one or many rows describing the population.
+
+Any summarization of the client-level data can be implemented as a statistic.
+
+There is a fixed set of statistics available:
+
+- `sum`
+- `percentile` (default)
+- `mean`
+- `count`
+
+```toml
+# Specify which statistic to use for a metric
+[metrics.memory_pressure_count.statistics]
+sum = {}
+mean = {}
+```
+
+New statistics need to be implemented in OpMon. Some statistics allow to specify additional parameters.
 
 ### `[dimensions]` Section
 
@@ -194,6 +250,129 @@ select_expression = "normalized_os"
 The `os` dimension will result in the client population being segmented by operation system. For each dimension a filter is being added to the resulting
 dashboard which allows to, for example, only show results for all Windows clients.
 
+### `[alerts]` Section
+
+Different types of alerts can be defined for metrics:
+
+```toml
+[alerts]
+
+[alerts.ci_diffs]
+# Alert for large differences between branches:
+# an alert is triggered if confidence interval of different branches
+# do not overlap
+type = "ci_overlap"
+metrics = [      # metrics to monitor
+    "gc_ms",
+    "startup_crashes",
+]
+percentiles = [50, 90]  # percentiles to monitor
+
+[alerts.crash_tresholds]
+# Thresholds based aler:
+# an alert is triggered if defined thresholds are exceeded/subceeded
+type = "threshold"
+metrics = [  # metrics to monitor
+    "oom_crashes",
+    "gpu_crashes"
+]
+min = [0]    # lower thresholds
+max = [10]   # upper thresholds
+
+[alerts.historical_diff]
+# Deviation from historical data:
+# an alert is triggered if the average of the specified window deviates
+# from the average of the previous window
+type = "avg_diff"
+metrics = [  # metrics to monitor
+    "memory_total",
+]
+window_size = 7 # window size in days
+max_relative_change = 0.5   # relative change that when exceeded triggers an alert
+percentiles = [50, 90]  # percentiles to monitor
+```
+
+Currently, there are 3 different types of alerts:
+
+- **Large differences between branches:** Whenever the confidence intervals of different branches for a specific metric no longer overlap, it indicates that there is potentially some significant difference.
+- **Thresholds:** Comparing the values of a metric to a user-defined threshold.
+- **Deviation from historical data:** Detect anomalous behaviour of a metric based on previously collected data.
+
+#### Large differences between branches
+
+The OpMon dashboards show the values for specific metrics as a line chart with confidence intervals. Each line represents the metric values for a different branch. Whenever the confidence intervals of the branches do not overlap, it is considered a critical change. See:
+
+![](../assets/opmon_alerting_branch_differences.png)
+
+#### Thresholds
+
+In some cases the expected value of a metric is known and any large deviation from that expected value is considered a critical change. Fixed thresholds can be used to specify when a value is too large or too low. See:
+
+![](../assets/opmon_alerting_thresholds.png)
+
+#### Deviation from historical data
+
+An alert should be triggered for certain metrics if their value deviates significantly from historical records. Sudden changes could, for example, happen after a new version gets released. See:
+
+![](../assets/opmon_alerting_historical_diff.png)
+
+It is not always possible to define a specific threshold, so instead previously recorded data should be used to detect significant deviations.
+
+This check is the most complicated and computation-intensive one with potentially the highest number of false positives. There are a lot of different anomaly detection algorithms out there, but OpMon uses an approach which compares the average value of a metric of the past `n` days to the average value of the `n` days before. If the relative difference between these two values exceeds a defined threshold an alert will be triggered.
+
+The main downside of this approach is that whenever spikes happen, alerts will be sent even after the spike has gone down since it will inflate the average values for a while.
+
+## Previews
+
+When iterating on configurations, it is sometimes useful to get a preview of what computed data on the final dashboard would look like. A preview can be generated by installing the [OpMon CLI tooling locally](https://github.com/mozilla/opmon#local-installation).
+
+Once installed `opmon preview` can be run for a specific configuration or rollout:
+
+```
+> opmon preview --help
+Usage: opmon preview [OPTIONS]
+
+  Create a preview for a specific project based on a subset of data.
+
+Options:
+  --project_id, --project-id TEXT
+                                  Project to write to
+  --dataset_id, --dataset-id TEXT
+                                  Temporary dataset to write to
+  --derived_dataset_id, --derived-dataset-id TEXT
+                                  Temporary derived dataset to write to
+  --start_date, --start-date YYYY-MM-DD
+                                  Date for which project should be started to
+                                  get analyzed. Default: current date - 3 days
+  --end_date, --end-date YYYY-MM-DD
+                                  Date for which project should be stop to get
+                                  analyzed. Default: current date
+  --slug TEXT                     Experimenter or Normandy slug associated
+                                  with the project to create a preview for
+                                  [required]
+  --config_file, --config-file PATH
+                                  Custom local config file
+  --config_repos, --config-repos TEXT
+                                  URLs to public repos with configs
+  --private_config_repos, --private-config-repos TEXT
+                                  URLs to private repos with configs
+  --help                          Show this message and exit.
+
+> gcloud auth login --update-adc
+> gcloud config set project mozdata
+> opmon preview --slug=firefox-install-demo --config_file='/local/path/to/opmon/firefox-install-demo.toml'
+Start running backfill for firefox-install-demo: 2022-12-17 to 2022-12-19
+Backfill 2022-12-17
+...
+A preview is available at: https://mozilla.cloud.looker.com/dashboards/operational_monitoring::opmon_preview?Table='mozdata.tmp.firefox_install_demo_statistics'&Submission+Date=2022-12-17+to+2022-12-20
+```
+
+Once preview data has been computed, a link to a Looker dashboard will be printed where data for each metric and statistic is visualized.
+
+![](../assets/opmon_preview.png)
+
+The preview data gets written into the `tmp` dataset in the `mozdata` project by default. Data written to this dataset gets automatically removed after 7 days.
+
 ## Reading Results
 
 Generated dashboards are available in [Looker](https://mozilla.cloud.looker.com/folders/494).
@@ -214,6 +393,17 @@ Usually places where the confidence intervals of different branches have a gap b
 
 Each dashboard tile also allows to explore the data for a specific metric in more detail by clicking on _Explore from here_.
 
+## Subscribing to Alerts
+
+If alerts have been configured for a OpMon project, then the generated dashboard will show any triggered alerts in a table at the bottom of the dashboard:
+
+![](../assets/opmon_alerts.png)
+
+To receive email or Slack notification whenever new alerts are being triggered, click on the _Alerts_ icon that is in the right corner of the _Alerts_ table.
+Configure the alert by setting the condition, email addresses or Slack channels alerts should be sent to and the frequency of when checks should be performed:
+
+![](../assets/opmon_alert_config.png)
+
 ## Data Products
 
 OpMon writes monitoring results and metadata to BigQuery. OpMon runs as part of the nightly ETL job (see [Scheduling](#scheduling) below).
@@ -223,38 +413,33 @@ OpMon writes monitoring results and metadata to BigQuery. OpMon runs as part of 
 The result tables that back the Looker dashboards are available in the `operational_monitoring_derived` dataset in `moz-fx-data-shared-prod`.
 Result tables are named like:
 
-`<slug>_<data_type>`
+`<slug>_v<version>`
 
-`<slug>` is referring to the slug that has been set for the project and a separate table is created for each `data_type` (scalar and histogram). The schema for result tables is flexible and slightly different for each data type.
+`<slug>` is referring to the slug that has been set for the project and a separate table is created for metrics, statistics and alerts. The schema for metric tables is flexible and depends on the metrics configured to be computed.
 
-Views for each tables are also created in the `operational_monitoring` dataset. These views will compute the percentiles based on the generated results and are used by the Looker dashboards.
+Views for each tables are also created in the `operational_monitoring` dataset. These views are used by the Looker dashboards.
 
-#### Scalar result tables
+#### Metric tables
 
-| Column name       | Type     | Description                                        |
-| ----------------- | -------- | -------------------------------------------------- |
-| `submission_date` | `DATE`   | Date the monitoring results are for                |
-| `client_id`       | `STRING` | Client's telemetry `client_id`                     |
-| `branch`          | `STRING` | Branch client is enrolled in                       |
-| `build_id`        | `STRING` | Build the client is on                             |
-| `name`            | `STRING` | Slug of the probe-based metric the results are for |
-| `agg_type`        | `STRING` | The type of aggregation used (`MAX`, `SUM`)        |
-| `value`           | `FLOAT`  | The result value                                   |
+| Column name       | Type     | Description                         |
+| ----------------- | -------- | ----------------------------------- |
+| `submission_date` | `DATE`   | Date the monitoring results are for |
+| `client_id`       | `STRING` | Client's telemetry `client_id`      |
+| `branch`          | `STRING` | Branch client is enrolled in        |
+| `build_id`        | `STRING` | Build the client is on              |
 
-The result table will have additional columns for each dimension that has been defined.
+The result table will have additional columns for each metric and dimension that has been defined.
 
-#### Histogram Result Tables
+#### Statistic Tables
 
-| Column name       | Type     | Description                                        |
-| ----------------- | -------- | -------------------------------------------------- |
-| `submission_date` | `DATE`   | Date the monitoring results are for                |
-| `client_id`       | `STRING` | Client's telemetry `client_id`                     |
-| `branch`          | `STRING` | Branch client is enrolled in                       |
-| `build_id`        | `STRING` | Build the client is on                             |
-| `probe`           | `STRING` | Slug of the probe-based metric the results are for |
-| `value`           | `RECORD` | This record is a histogram                         |
+| Column name       | Type     | Description                         |
+| ----------------- | -------- | ----------------------------------- |
+| `submission_date` | `DATE`   | Date the monitoring results are for |
+| `client_id`       | `STRING` | Client's telemetry `client_id`      |
+| `branch`          | `STRING` | Branch client is enrolled in        |
+| `build_id`        | `STRING` | Build the client is on              |
 
-The result table will have additional columns for each dimension that has been defined.
+The result table will have additional columns for each metric and dimension that has been defined.
 
 ### Metadata
 
@@ -269,7 +454,7 @@ The table `projects_v1` in `operational_monitoring_derived` contains metadata ab
 | `dimensions` | `ARRAY`  | List of dimension slugs                                                                  |
 | `start_date` | `DATE`   | Date for when monitoring should start for the project                                    |
 | `end_date`   | `DATE`   | Date for when monitoring should end for the project                                      |
-| `probes`     | `RECORD` | Repeated record with the probe slug and aggregation type                                 |
+| `metrics`    | `RECORD` | Repeated record with the metric slug and aggregation type                                |
 
 ### Scheduling
 

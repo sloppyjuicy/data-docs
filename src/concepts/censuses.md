@@ -2,7 +2,7 @@
 
 > **⚠** The information in this document is obsolete. This content was originally included in the [Project Smoot existing metrics report][smootv1] (Mozilla internal link).
 
-[smootv1]: https://mozilla-private.report/smoot-existing-metrics/book/05_overview.html
+[smootv1]: https://mozilla-private-report.protosaur.dev/smoot-existing-metrics/book/05_overview.html
 
 ADI and DAU are oft-discussed censuses. This chapter discusses their history and definition.
 
@@ -55,7 +55,7 @@ the next task is scheduled.
 
 Failures are ignored.
 
-The raw data is available in BigQuery (see an example [ADI query in Redash](https://sql.telemetry.mozilla.org/queries/66481)).
+The raw data is available in BigQuery (see [`STMO#66481`](https://sql.telemetry.mozilla.org/queries/66481)).
 
 Telemetry only reports whether blocklist checking is enabled or disabled
 on the client; there is no data in telemetry about blocklist fetches,

@@ -1,8 +1,8 @@
-# Main Summary
+# Main Summary (deprecated)
 
 > **⚠** Since the introduction of BigQuery, we are able to represent the
 > full `main` ping structure in a table, available as `telemetry.main`.
-> New analyses should avoid `main_summary`, which exists only for compatibility.
+> As such, `main_summary` was discontinued as of 2023-10-05.
 
 The `main_summary` table contains one row for each ping.
 Each column represents one field from the main ping payload,
@@ -24,7 +24,7 @@ limit to a short submission date range.
 ## Accessing the Data
 
 The `main_summary` table is accessible through STMO.
-Here's an [example query](https://sql.telemetry.mozilla.org/queries/4201/source).
+See [`STMO#4201`](https://sql.telemetry.mozilla.org/queries/4201/source) for an example.
 
 ## Data Reference
 

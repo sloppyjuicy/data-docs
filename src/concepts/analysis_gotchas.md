@@ -22,18 +22,45 @@ Especially severe problems with production data are announced on the `fx-data-de
 
 ## Notable historic events
 
+See also [the spreadsheet of notable historic events](https://docs.google.com/spreadsheets/d/16Cyx_KBieRdQkSBKolivqpBaK2H-VceN9LEZcL0snHg/edit#gid=0). This spreadsheet is imported into BigQuery, and can be found at `moz-fx-data-shared-prod.static.data_incidents_v1`.
+
+**If you add an entry here, please add it to that spreadsheet as well!**
+
 When you start to evaluate trends, be aware of events from the past that may invite comparisons with history. Here are a few to keep in mind:
 
-- **Dec 1 2021 - Jan 23 2022** - [Search values in Android Focus from core telemetry fell][jirado673].
+- **Aug 22, 2024** - Adjust is disabled in mobile clients (Firefox Android & Firefox iOS).
+- **May 20, 2024 - June 14, 2024** - Excessive Glean database writes degraded Fenix performance on startup, pageload, scrolling, video playback, and possibly other areas. Some metrics were disabled. See [bug 1892230](https://bugzilla.mozilla.org/show_bug.cgi?id=1892230).
+- **Apr 18, 2024** - Google began rolling out a new SERP experience on Firefox Android, which impacted standard search metrics. See [the spreadsheet](https://docs.google.com/spreadsheets/d/16Cyx_KBieRdQkSBKolivqpBaK2H-VceN9LEZcL0snHg/edit#gid=0) for more details.
+- **March 15, 2024** - Spike in clients with null default search engine (~32%) for Firefox iOS. This issue was fixed for Firefox 126 and above. More details can be found in this [incident report](https://docs.google.com/document/d/1iMoGOnTZZ920oth6aWbzD_npP79vSQq6OQx_bz4vFXw/edit)
+- **Feb 29 , 2024** - Spike in the [search engine changed probe](https://dictionary.telemetry.mozilla.org/apps/firefox_desktop/metrics/search_engine_default_changed) for users who had an engine update for versions >= 124 . This is due to search engine default changed probes being triggered during engine updates even when users don't actually change their default search engines post-update [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1876178). More details can be found [here](https://mozilla-hub.atlassian.net/browse/RS-1051).
+- **Jan 15 - May 1, 2024** - Legacy Telemetry pings containing os information from Arch Linux clients without the `lsb-release` package were [dropped](https://bugzilla.mozilla.org/show_bug.cgi?id=1875874).
+- **Dec 8, 2023** - (ongoing) Firefox iOS Clients coming through the French ISP Netskope report an increased number of 4xx HTTP errors on submission ([bug 1870670](https://bugzilla.mozilla.org/show_bug.cgi?id=1870670)).
+- **Dec 7, 2023** - Contextual Services data for Firefox Desktop versions 116 and up [now supplied by Glean](http://mozilla-hub.atlassian.net/browse/DSRE-1489).
+- **Nov 20, 2023** - Changeover day for Onboarding data sent via Messaging System from PingCentre to Glean. Views and datasets downstream of `messaging_system.onboarding` [began being fueled by Glean-sent data instead of PingCentre-sent data](https://github.com/mozilla/bigquery-etl/pull/4457).
+- **Jul 16, 2023 - Jul 24, 2023** - During the migration from release to ESR of Firefox users on obsolete versions of MacOS and Windows, Firefox sent deletion request pings for clients in the migration, which also reset the `client_id`. [See the summary of the incident here.](https://docs.google.com/document/d/1vdn9OFSoKPD5wt14dmTwyh0kGs-96fWx26ESui95jo0/edit). Approximately 2 million clients were affected by this bug; as a result of this, around 1.3 million clients were double counted due to both the old `client_id` and reset `client_id` being active on the same day.
+- **Mar 17, 2023 - May 9, 2023** - Firefox for Android was collecting but not sending `perf.page_load` events during this period. The recorded events started being sent after May 9, 2023 resulting in a spike of events that eventually returned to normal levels. [See Bug 1833178 for more info.][bug1833178]
+- **Mar 14, 2023** - Firefox for Android began reporting significantly fewer new installs, due to [a fix for Client ID regeneration](https://docs.google.com/document/d/1Tf8F2FndPsOAWc7peLxgUZd4t-LUJu8RMotiDhgKF7I/edit#heading=h.xyargldz6xg0). This also affected retention for both new and existing users.
+- **Nov 15, 2022** - A major bug in the `search with ads` probes was fixed on Firefox Desktop. The [bug fix](https://bugzilla.mozilla.org/show_bug.cgi?id=1800506) impacts Firefox 109+ and resulted in significant increases in the number of searches with ads recorded.
+- **Aug 31 2022** - [A small number of records were missing from stable tables until October 5, 2022 and not reprocessed into downstream ETL tables][jiradsre999].
+- **July 19 - August 3, 2022** - [Fenix v103 seeing an increase in `null` values in `client_info` fields](https://bugzilla.mozilla.org/show_bug.cgi?id=1781085).
+  Glean failed to properly collect data for the `client_info` fields `android_sdk_version`, `device_model`, `device_manufacturer` and `locale`.
+  This has been fixed in subsequent releases and is fixed in Fenix 103.2 and all later releases.
+  No backfill.
+- **May 24 - Jun 10, 2022** - `search_with_ads` drops on Firefox Desktop globally. Upon [investigation](https://docs.google.com/document/d/1wdU1O6Anmqs87PdyYXympTXHznoskU6pVdSgTS6ilpA/edit), the issue is believed to be related to Google's core algorithm update in May 2022.
+- **May 15, 2022** - [Fixed potential under report `search_with_ads`][bug1673868].
+  Ad impressions were not tracked for SERP that took longer than 1 second to load. This was initially uncovered by QA for ad impressions on DuckDuckGo SERP. The fix addresses for all search partners and is not limited to DuckDuckGo.
+- **Dec 1, 2021 - Jan 23, 2022** - [Search values in Android Focus from core telemetry fell][jirado673].
 - **Nov 16, 2021** - [Submissions were rejected from 17:44 to 18:10 UTC][jirads1843].
 - **Nov 4, 2021** - [CORS headers added to support receiving submissions from Glean.js websites][bug1676676].
 - **Sep 30 2021 - Oct 06 2021** - [Submissions from some countries were rejected][bug1733953].
 - **Sep 30 2021 - Oct 04 2021** - [Submissions from clients on some older platforms were dropped][bug1733953].
 - **Aug 23 2021 - Aug 29 2021** - [Approximately 1/251 of pings were improperly labeled as coming from Kansas City, US][bug1729069].
-- **Aug 05 2021 - Aug 31 2021** - Drop in search metrics (`tagged_sap`, `tagged_follow_on`, `search_with_ads`, `ad_click`) in Fenix due to probe expiry. [Incident report](https://docs.google.com/document/d/1C29HmYponPcqtX4yR4QA7uBkhhkAM76WqMW3PQBnL_g/edit) and [query](https://sql.telemetry.mozilla.org/queries/82098/source#203423).
+- **Aug 05 2021 - Aug 31 2021** - Drop in search metrics (`tagged_sap`, `tagged_follow_on`, `search_with_ads`, `ad_click`) in Fenix due to probe expiry. [Incident report](https://docs.google.com/document/d/1C29HmYponPcqtX4yR4QA7uBkhhkAM76WqMW3PQBnL_g/edit) and [`STMO#203423`](https://sql.telemetry.mozilla.org/queries/82098/source#203423).
 - **Feb 16 2021 - Feb 25 2021** - [A small number of stub installer pings may have been discarded due to URI deduplication][bug1694764].
+- **Jan 28, 2021** - [Fenix DAU jumped rapidly, due to increased sending of the baseline ping](https://docs.google.com/document/d/1MEsAUqjaIZCUtWLFAhXHxq-m1hDEw1QAOKYEva4DDZk/edit)
 - **August 6, 2020** - [Pings with "automation" tag in X-Source-Tags will no longer appear in stable tables][bq1215]
   This is particularly relevant for removing pings related to automated testing of Fenix.
+- **August 1, 2020 - August 31, 2020** - [Fennec was migrated to Fenix](https://sql.telemetry.mozilla.org/queries/89203#220890), causing changes in both how data was reported (Glean rather than the core ping) and some reported metrics (e.g. DAU, as people dropped off).
 - **July 20, 2020** - [Glean dropping application lifetime metrics from `metrics` pings][bug1653244].
   Glean Android bindings from version `v25.0.0` up to and including `v31.4.0` had a bug that would cause metrics with “lifetime: application” to be cleared before they could be collected for metrics pings sent during startup. This can result in application lifetime metrics like experiment information being randomly missing from the data.
 - **April 14, 2020** - [Telemetry edge server rejects pings for an hour][bug1630096].
@@ -87,6 +114,9 @@ When you start to evaluate trends, be aware of events from the past that may inv
 [bug1676676]: https://bugzilla.mozilla.org/show_bug.cgi?id=1676676
 [jirads1843]: https://mozilla-hub.atlassian.net/browse/DS-1843
 [jirado673]: https://mozilla-hub.atlassian.net/browse/DO-673
+[bug1673868]: https://bugzilla.mozilla.org/show_bug.cgi?id=1673868
+[jiradsre999]: https://mozilla-hub.atlassian.net/browse/DSRE-999
+[bug1833178]: https://bugzilla.mozilla.org/show_bug.cgi?id=1833178
 
 ## Pseudo-replication
 
@@ -232,7 +262,7 @@ Other types of pings are not sent with Pingsender.
 This is usually okay because Firefox is expected to continue to run long
 enough to send these pings.
 
-Mobile clients do not have Pingsender. Therefore, a delay occurs as described in [this query][delay_q].
+Mobile clients do not have Pingsender. Therefore, a delay occurs as described in [`STMO#49867`][delay_q].
 
 [bug 1310703]: https://bugzilla.mozilla.org/show_bug.cgi?id=1310703
 [bug 1374270]: https://bugzilla.mozilla.org/show_bug.cgi?id=1374270
@@ -257,7 +287,7 @@ Summary of reasons for this decision:
 
 In general, data coming from an application instance not run by a human is not wanted in analysis. As of this writing, [GeckoDriver](https://github.com/mozilla/geckodriver) (one of the official mechanisms to launch and control an automated version of Firefox for e.g. web compatibility testing) is [configured _not_ to send Telemetry by default](https://searchfox.org/mozilla-central/rev/baf1cd492406a9ac31d9ccb7a51c924c7fbb151f/testing/geckodriver/src/prefs.rs#154) but we can't control for other things people might do in the field.
 
-On desktop, one field to watch out for is headless mode (`environment.system.gfx.headless` in the main ping): if that field is set, you are for certain not working with a version of Firefox being operated by a real human. You can see an example of some client pings with this field set skewing the nightly numbers in [bug 1643341](https://bugzilla.mozilla.org/show_bug.cgi?id=1643341). An easy solution is to just filter out these types of clients in your analysis. You can see an example of this pattern in [this query](https://sql.telemetry.mozilla.org/queries/71781/source).
+On desktop, one field to watch out for is headless mode (`environment.system.gfx.headless` in the main ping): if that field is set, you are for certain not working with a version of Firefox being operated by a real human. You can see an example of some client pings with this field set skewing the nightly numbers in [bug 1643341](https://bugzilla.mozilla.org/show_bug.cgi?id=1643341). An easy solution is to just filter out these types of clients in your analysis. You can see an example of this pattern in [`STMO#71781`](https://sql.telemetry.mozilla.org/queries/71781/source).
 
 ## Build Ids
 
@@ -270,3 +300,44 @@ A build id might be formatted in any way and contain the time or version control
 
 Do not assume build id's are consistent across the products we ship. A build id format may vary between products, between channels of the same product, or over time within the same channel of the same product.
 The build id format for Firefox Desktop has been very stable over time thus far, but even it can be different for different platforms in some respin circumstances (if e.g. only one platform's builder failed).
+
+## Comparing Legacy Telemetry and Glean Data in GLAM
+
+### Official Recommendation
+
+> **Do Not Compare Legacy Telemetry and Glean Data Directly in GLAM.**
+
+- If you need to track long-term trends for a particular metric, treat the Legacy Telemetry timeframe and the Glean timeframe as **separate eras**.
+- For in-depth analysis, rely on the Glean instrumentation once you have fully migrated, and use Legacy Telemetry only for historical reference.
+- Recognize that both Legacy Telemetry and Glean “tell the same story” but from different angles and with different measurement methodologies.
+- Both data sources remain valid and useful, but **side-by-side comparison is not recommended and if done should be approached with caution**. Instead, analysts are encouraged to use Legacy Telemetry data for historical context and Glean data for current and future trends.
+
+#### If you still need to do side-by-side comparisons, be aware that significant discrepancies will occur due to a variety of factors:
+
+1. **Bucket Discrepancies (Histograms)**
+
+   - **Legacy Telemetry**: Fewer buckets; Uses a fixed number of buckets depending on histogram type.
+   - **Glean**: More buckets; Uses an algorithmically-generated number of buckets depending on the metric's distribution type.
+   - **Result**: The distributions and percentiles can look different in GLAM even when measuring the same underlying data because the histogram bounds and number of buckets do not match.
+
+2. **Cross-Process vs. Per-Process Collection**
+
+   - **Legacy Telemetry**: Often collects data per process (e.g., main, content, etc.) and can send data differently depending on the process.
+   - **Glean**: Consolidates measurements across multiple processes.
+   - **Result**: Aggregated Glean data may appear larger or differently distributed compared to Legacy data, because it merges what Legacy would treat as separate process-specific measurements.
+
+3. **Ping Differences ("baseline" & "metrics" Pings in Glean, "main" pings in Legacy Telemetry)**
+
+   - **Legacy Telemetry**: Typically sends one primary ping type (e.g., the “main” ping) for most data.
+   - **Glean**: Splits data into multiple ping types (e.g., a “baseline” ping, a “metrics” ping, etc.).
+   - **Result**: The same metric can appear to have more frequent updates or different submission times in Glean if it is reported in multiple pings.
+
+4. **Different Reporting Frequencies (Especially for Scalars)**
+   - **Legacy Telemetry**: Sends telemetry data [at distinct intervals or under certain conditions](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/data/main-ping.html). Usually per browsing session.
+   - **Glean**: Generally sends data [less often](https://mozilla.github.io/glean/book/user/pings/metrics.html#scheduling). Usually once a day for the `metrics` ping.
+   - **Result**: Scalar comparisons (like sums or counts) often diverge because each system “batches” or “chunks” the data differently over time.
+
+#### Impact on Analyses
+
+- **Histogram Metrics**: Expect to see different bucket distributions, total counts, and percentile shapes.
+- **Scalars**: Differences in sums, counts, and other simple accumulations are common. The magnitude of these discrepancies may vary depending on how often the ping is sent, how usage patterns differ, and whether data is merged across processes.

@@ -9,7 +9,7 @@ If you're new to Mozilla, you may also find the [general glossary](https://wiki.
 
 ## AET
 
-Account Ecosystem Telemetry; see the [PRD](https://docs.google.com/document/d/1yRLiD8JuaZIIaKhs6DhXEa7aH8jwOau5yW0kHaldFQU/edit#)
+Account Ecosystem Telemetry (never fully launched); see the [PRD](https://docs.google.com/document/d/1yRLiD8JuaZIIaKhs6DhXEa7aH8jwOau5yW0kHaldFQU/edit#)
 
 ## Analyst
 
@@ -17,7 +17,7 @@ See [Data Analyst](#data-analyst).
 
 ## Amplitude
 
-A third-party product used by several teams within Mozilla for analysis of user events.
+A third-party product formerly used by several teams within Mozilla for analysis of user events.
 
 ## BigQuery
 
@@ -59,7 +59,9 @@ A set of data, which includes ping data, derived datasets, etc.; sometimes it is
 
 ## DAU
 
-The number of unique profiles active on each day.
+Daily Active Users - The number of unique [client ids](#client-id) that are active each day.
+
+For more details, see the [DAU Metric](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric) page on Confluence.
 
 ## Derived Dataset
 
@@ -85,6 +87,10 @@ Mozilla's core data platform has been built to support structured ingestion of a
 
 Intuitively, how many days per week do users use the product? Among profiles active at least once in the week ending on the date specified, the number of days on average they were active during that one-week window.
 
+## KPI
+
+Key Performance Indicator - a [metric](#metric) that is used to measure performance across an organization, product, or project.
+
 ## Metric
 
 In general: a metric is anything that you want to (and can) measure. This differs from a dimension which is a qualitative attribute of data.
@@ -99,7 +105,7 @@ ending on the specified day.
 ## Ping
 
 A ping represents a message that is sent from the Firefox browser to Mozilla’s Telemetry servers. It typically includes information about the browser’s state, user actions, etc.
-[for more details](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/data/common-ping.html)
+For more information, see [Common ping format](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/data/common-ping.html).
 
 ## Ping Table
 
@@ -122,21 +128,21 @@ You can search for details about probes by using the [Probe Dictionary](https://
 - When a probe started being collected
 - Whether data from this probe is collected in the release channel
 
-Newer measurements implemented using [Glean](#glean) are referred to as [metrics](#metrics) instead of probes, but the basic outline is the same. Details about Glean Metrics are collected inside the [Glean Dictionary](https://dictionary.telemetry.mozilla.org).
+Newer measurements implemented using [Glean](#glean) are referred to as [metrics](#metric) instead of probes, but the basic outline is the same. Details about Glean Metrics are collected inside the [Glean Dictionary](https://dictionary.telemetry.mozilla.org).
 
 ## Profile
 
-All of the changes a user makes in Firefox, like the home page, what toolbars you use, installed addons, saved passwords and your bookmarks, are all stored in a special folder, called a profile. Telemetry stores archived and pending pings in the profile directory as well as metadata like the [client id](#client-id). See also [Profile Creation](./profile/profile_creation.md)
+All of the changes a user makes in Firefox, like the home page, what toolbars you use, installed addons, saved passwords and your bookmarks, are all stored in a special folder, called a profile. Telemetry stores archived and pending pings in the profile directory as well as metadata like the [client id](#client-id). See also [Profile Creation](./profile/profile_creation.md).
 
 ## Query
 
-Typically refers to a query written in the SQL syntax, run on (for example) [STMO](#stmo).
+Typically refers to a query written in the SQL syntax, run on (for example) [STMO](#stmo-sqltelemetrymozillaorg).
 
 ## Retention
 
-- As in “Data retention” - how long data is stored before it is automatically deleted/archived
+- As in “Data retention” - how long data is stored before it is automatically deleted/archived?
 
-- As in “User retention” - how likely is a user to continue using a product
+- As in “User retention” - how likely is a user to continue using a product?
 
 ## Schema
 
@@ -148,8 +154,7 @@ The period of time that it takes between Firefox being started until it is shut 
 
 ## Subsession
 
-In Firefox, [Sessions](#sessions) are split into subsessions after every 24-hour time period has passed or the environment has changed.
-([for more details](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/concepts/sessions.html?highlight=subsession))
+In Firefox, [Sessions](#session) are split into subsessions after every 24-hour time period has passed or the environment has changed. See [here for more details](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/concepts/sessions.html?highlight=subsession).
 
 ## STMO (sql.telemetry.mozilla.org)
 
@@ -159,7 +164,15 @@ A service for creating queries and dashboards. See [STMO under analysis tools](.
 
 As you use Firefox, Telemetry measures and collects non-personal information, such as performance, hardware, usage and customizations. It then sends this information to Mozilla on a daily basis and we use it to improve Firefox.
 
+## URI
+
+Uniform Resource Identifier - a string that refers to a resource. The most common are [URLs](#url), which identify the resource by giving its location on the Web ([source](https://developer.mozilla.org/en-US/docs/Glossary/URI)).
+
+## URL
+
+Uniform Resource Locator - a text string that specifies where a resource (such as a web page, image, or video) can be found on the Internet ([source](https://developer.mozilla.org/en-US/docs/Glossary/URL)). For example, `https://www.mozilla.org` is a URL.
+
 ## WAU
 
-The number of unique profiles active at least once during the 7-day window
+Weekly Active Users - The number of unique profiles active at least once during the 7-day window
 ending on the specified day.

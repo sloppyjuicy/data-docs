@@ -8,7 +8,7 @@
 
 # Example Queries
 
-_Percent of users we predict will click an ad in the **next** 365 days by Engine._ ([source](https://sql.telemetry.mozilla.org/queries/74878/source))
+_Percent of users we predict will click an ad in the **next** 365 days by Engine._ ([`STMO#74878`](https://sql.telemetry.mozilla.org/queries/74878/source))
 
 ```sql
 SELECT
@@ -16,14 +16,14 @@ SELECT
   AVG(IF(pred_num_days_seeing_ads > 0, 1, 0)) as pct_predicted_ad_viewers_next_year,
   AVG(IF(pred_num_days_clicking_ads > 0, 1, 0)) as pct_predicted_ad_clickers_next_year,
 FROM
-  `moz-fx-data-shared-prod`.revenue_derived.client_ltv_v1
+  `moz-fx-data-shared-prod`.revenue.client_ltv
 WHERE
   submission_date = DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)
 GROUP BY
   1
 ```
 
-_LTV Value of Users Over Lifetime (by `days_since_created_profile`) of Users Active in Past 7 Days_ ([source](https://sql.telemetry.mozilla.org/queries/74867/source#187036))
+_LTV Value of Users Over Lifetime (by `days_since_created_profile`) of Users Active in Past 7 Days_ ([`STMO#187036`](https://sql.telemetry.mozilla.org/queries/74867/source#187036))
 
 ```sql
 SELECT
@@ -32,7 +32,7 @@ SELECT
   SUM(normalized_ltv_ad_clicks_future) AS normalized_ltv_ad_clicks_future,
   SUM(normalized_ltv_ad_clicks_future) / COUNT(*) AS avg_normalized_ltv_ad_clicks_future,
 FROM
-  `moz-fx-data-shared-prod`.revenue_derived.client_ltv_v1
+  `moz-fx-data-shared-prod`.revenue.client_ltv
 JOIN
   `moz-fx-data-shared-prod`.search.search_clients_last_seen
   USING(submission_date, client_id)
@@ -105,7 +105,7 @@ root
 
 # Model Performance
 
-There is additionally a dataset, `ltv_daily_model_perf`, that tracks the LTV model's prediction performance each day it is re-trained. For a given day, one could check the performance with the following [query](https://sql.telemetry.mozilla.org/queries/75244/source#187873):
+There is additionally a dataset, `ltv_daily_model_perf`, that tracks the LTV model's prediction performance each day it is re-trained. For a given day, one could check the performance with the following [query (`STMO#187873`)](https://sql.telemetry.mozilla.org/queries/75244/source#187873):
 
 ```sql
 SELECT

@@ -1,10 +1,10 @@
 # Introduction to GLAM
 
-GLAM was built to help Mozillians answer their data questions without needing data analysis or coding skills. It contains a visualization layer meant to answer most "easy" questions about how a probe or metric has changed over build ids and releases.
+GLAM was built to help Mozillians answer most "easy" questions about how a probe or metric has changed over build ids and releases.
 
 GLAM is one of several high-level data tools that we provide at Mozilla. For more information, see [Tools for Data Analysis](../introduction/tools.md).
 
-Access to GLAM is currently limited to Mozilla employees and designated contributors (this [may change in the future](https://bugzilla.mozilla.org/show_bug.cgi?id=1712353)). For more information, see [gaining access](../concepts/gaining_access.md).
+Access to GLAM is public!
 
 ## How to use GLAM
 
@@ -14,7 +14,7 @@ You can visit GLAM at [`glam.telemetry.mozilla.org`](https://glam.telemetry.mozi
 
 ![](../assets/GLAM_screenshots/front-page.png)
 
-The front page includes two main sections: the search bar and the random probe explorer. Fuzzy tech search is implemented to let users search not only by the probe title, but also by the full description.
+The front page includes two main sections: the search bar and the random probe explorer. Users can search not only by the probe title, but also by the full description.
 
 GLAM is currently serving data for Firefox Desktop and Firefox for Android.
 
